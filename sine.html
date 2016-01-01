@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Simple Tone Generator</title>
+  </head>
+  <body>
+    <h1>Simple Tone Generator</h1>
+    <button onclick="playTone()">Play Tone</button>
+    <button onclick="stopTone()">Stop Tone</button>
+
+    <script>
+      let audioContext;
+      let oscillator;
+      let index = 1;
+      const oscillatorTypes = ["sine", 'square', 'sawtooth', 'triangle']; // Sine wave
+
+      function playTone() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext ||
+            window.webkitAudioContext)();
+        }
+        if (!oscillator) {
+          navigator.vibrate(100);
+//navigator.vibrate([500, 200, 500]);
+          oscillator = audioContext.createOscillator();
+          oscillator.type = oscillatorTypes[(index++)%oscillatorTypes.length];
+          oscillator.frequency.setValueAtTime(26000, audioContext.currentTime); // A4 note, 440 Hz
+          oscillator.connect(audioContext.destination);
+          oscillator.start();
+        }
+      }
+
+      function stopTone() {
+        if (oscillator) {
+          oscillator.stop();
+          oscillator.disconnect();
+          oscillator = null; // Reset the oscillator to allow a new one to be created next time
+        }
+      }
+    </script>
+  </body>
+</html>
