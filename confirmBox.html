@@ -1,0 +1,81 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+
+  <script src="./app.js"></script>
+  
+  
+  <style>
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2;
+  }
+
+  .confirm-box {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: 25%;
+    left: 25%;
+    text-align: center;
+    background: white;
+  }
+
+  .close {
+    cursor: pointer;
+  }
+</style>
+
+
+  
+</head>
+
+<body>
+
+      <h3>Confirm Bx</h3>
+      
+  <div class="overlay" id="overlay" hidden>
+    <input id="chooseFile" type="file" style="display: none" />
+    <div class="confirm-box">
+      <div  id="closeConfirmBox"  class="close">&#10006;</div>
+      <h3 id="isConfirmContent">Are you sure to execute this action?</h3>
+      <button id="isConfirmTrue">Yes</button>
+      <button id="isConfirmFalse">No</button>
+    </div>
+  </div>
+  
+<script>
+   
+      var x1;
+let ii = 1;     
+try {
+      showCB('yy', 'Yess', 'Noo', ()=>alert(749), (files)=>{
+  alert(files[0].name); });
+    } catch (e) {
+        alert(e.message);
+    }
+    
+      
+     
+        setTimeout(() => {
+    showCB('yy', 'Yess', 'Noo', 0, null);
+  }, 10000);
+        
+
+  </script>
+   
+     
+
+
+
+
+</body>
+
+</html>
