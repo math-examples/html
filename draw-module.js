@@ -1,4 +1,4 @@
-const canvas = document.getElementById('canvas');
+const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 let isDrawing = false;
 let x = 0;
@@ -6,6 +6,8 @@ let y = 0;
 var offsetX;
 var offsetY;
 
+let gcolor;
+let gcolorbg;
 
 function setListeners() {
   canvas.addEventListener('touchstart', handleStart);
@@ -34,6 +36,7 @@ function setListeners() {
       isDrawing = false;
     }
   });
+  clearCanvas();
 }
 
 function drawSetListeners(){
@@ -52,17 +55,28 @@ function handleStart(evt) {
   }
 }
 
+function getColor(){
+    if(gcolor)return gcolor;
+    const selColor = document.getElementById('selColor');
+    return selColor?selColor.value:'green';
+}
+
+function getLineWidth(){
+    const selWidth = document.getElementById('selWidth');
+    return selWidth?selWidth.value:10;
+}
+
 function handleMove(evt) {
   evt.preventDefault();
   const touches = evt.changedTouches;
   for (let i = 0; i < touches.length; i++) {
-    const color = document.getElementById('selColor').value;
+    const color = getColor();
     const idx = ongoingTouchIndexById(touches[i].identifier);
     if (idx >= 0) {
       context.beginPath();
       context.moveTo(ongoingTouches[idx].clientX - offsetX, ongoingTouches[idx].clientY - offsetY);
       context.lineTo(touches[i].clientX - offsetX, touches[i].clientY - offsetY);
-      context.lineWidth = document.getElementById('selWidth').value;
+      context.lineWidth = getLineWidth();
       context.strokeStyle = color;
       context.lineJoin = "round";
       context.closePath();
@@ -76,10 +90,10 @@ function handleEnd(evt) {
   evt.preventDefault();
   const touches = evt.changedTouches;
   for (let i = 0; i < touches.length; i++) {
-    const color = document.getElementById('selColor').value;
+    const color = getColor();
     let idx = ongoingTouchIndexById(touches[i].identifier);
     if (idx >= 0) {
-      context.lineWidth = document.getElementById('selWidth').value;
+      context.lineWidth = getLineWidth();
       context.fillStyle = color;
       ongoingTouches.splice(idx, 1);  // remove it; we're done
     }
@@ -111,8 +125,8 @@ function ongoingTouchIndexById(idToFind) {
 
 function drawLine(context, x1, y1, x2, y2) {
   context.beginPath();
-  context.strokeStyle = document.getElementById('selColor').value;
-  context.lineWidth = document.getElementById('selWidth').value;
+  context.strokeStyle = getColor();
+  context.lineWidth = getLineWidth();
   context.lineJoin = "round";
   context.moveTo(x1, y1);
   context.lineTo(x2, y2);
@@ -122,7 +136,19 @@ function drawLine(context, x1, y1, x2, y2) {
 
 function clearCanvas() {
     context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    if(!gcolorbg)context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    else{
+        context.fillStyle = gcolorbg;
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+    }
 }
 
-export { drawSetListeners, clearCanvas };
+function setColor(c){
+    gcolor = c;
+}
+
+function setBgColor(c){
+    gcolorbg = c;
+}
+
+export { drawSetListeners, setColor, setBgColor, clearCanvas };
