@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Complete file example</title>
+  <style>
+    html {
+      font-family: sans-serif;
+    }
+
+    form {
+      width: 600px;
+      background: #ccc;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid black;
+    }
+
+    form ol {
+      padding-left: 0;
+    }
+
+    form li, div > p {
+      background: #eee;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      list-style-type: none;
+      border: 1px solid black;
+    }
+
+    form img {
+      height: 64px;
+      order: 1;
+    }
+
+    form p {
+      line-height: 32px;
+      padding-left: 10px;
+    }
+
+    form label, form button {
+      background-color: #7F9CCB;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px ridge black;
+      font-size: 0.8rem;
+      height: auto;
+    }
+
+    label:hover, form button:hover {
+      background-color: #ff00ff;
+      color: white;
+    }
+
+    form label:active, form button:active {
+      background-color: #0D3F8F;
+      color: white;
+    }
+  </style>
+  </head>
+<body>
+
+  <form>
+    <div>
+      <label for="image_uploads">Choose images to upload (PNG, JPG)</label>
+      <input type="file" id="image_uploads" name="image_uploads" accept=".jpg, .jpeg, .png" multiple>
+    </div>
+    <div class="preview">
+      <p>No files currently selected for upload</p>
+    </div>
+    <div>
+      <button>Submit2</button>
+    </div>
+  </form>
+  
+<button id="share" type="button">Share your images!</button>
+<output id="output"></output>
+
+
+  <script>
+    const input = document.querySelector('input');
+    const preview = document.querySelector('.preview');
+
+    input.style.opacity = 0;
+
+    input.addEventListener('change', updateImageDisplay);
+    
+    const output = document.getElementById("output");
+
+
+const share2 = async () => {
+  const files = input.files;
+
+  if (files.length === 0) {
+    output.textContent = "No files selected.";
+    return;
+  }
+
+  // feature detecting navigator.canShare() also implies
+  // the same for the navigator.share()
+  if (!navigator.canShare) {
+    output.textContent = `Your browser doesn't support the Web Share API.`;
+    return;
+  }
+
+  if (navigator.canShare({ files })) {
+    try {
+      await navigator.share({
+        files,
+        title: "Images",
+        text: "Beautiful images",
+      });
+      output.textContent = "Shared!";
+    } catch (error) {
+      output.textContent = `Error: ${error.message}`;
+    }
+  } else {
+    output.textContent = `Your system doesn't support sharing these files.`;
+  }
+};
+
+const button = document.querySelector('#share');
+
+const webShareSupported = 'canShare' in navigator;
+button.textContent = webShareSupported ? 'Share' : 'Download';
+
+
+const shareOrDownload = async (blobs, fileName, title0, text0) => {
+  if (webShareSupported) {
+      let mfiles = [];
+      for(i=0; i<blobs.length; ++i){
+          const file = new File([blobs[i]], i + fileName, {type: blobs[i].type});
+          mfiles.push(file);
+      }
+      
+    //alert(blob.type)
+    let data = {
+        files: mfiles,
+      title: title0,
+      text: text0,
+    };
+
+    if (navigator.canShare(data)) {
+      try {
+        await navigator.share(data);
+        output.textContent = "Shared!";
+      } catch (err) {
+          //alert(err.name, err.message);
+          output.textContent = `Error: ${error.message}`;
+      } finally {
+        return;
+      }
+    }
+  }
+  
+  // Fallback
+  const a = document.createElement('a');
+  a.download = fileName;
+  a.style.display = 'none';
+  a.href = URL.createObjectURL(blobs[0]);
+  a.addEventListener('click', () => {
+    setTimeout(() => {
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 1000)
+  });
+  document.body.append(a);
+  a.click();
+};
+
+button.addEventListener('click', async () => {
+    const imgs =  document.querySelectorAll('img');
+    let blobs = [];
+    for(i=0; i<imgs.length; ++i){
+        const blob = await fetch(imgs[i].src).then(res => res.blob());
+        blobs.push(blob);
+    }
+  
+  await shareOrDownload(blobs, 'hi.png', 'Snow', 'Getting');
+});
+
+    function updateImageDisplay() {
+      while(preview.firstChild) {
+        preview.removeChild(preview.firstChild);
+      }
+
+      const curFiles = input.files;
+      if(curFiles.length === 0) {
+        const para = document.createElement('p');
+        para.textContent = 'No files currently selected for upload';
+        preview.appendChild(para);
+      } else {
+        const list = document.createElement('ol');
+        preview.appendChild(list);
+
+        for(const file of curFiles) {
+          const listItem = document.createElement('li');
+          const para = document.createElement('p');
+
+          if(validFileType(file)) {
+            para.textContent = `File name ${file.name}, file size ${returnFileSize(file.size)}.`;
+            const image = document.createElement('img');
+            image.src = URL.createObjectURL(file);
+
+            listItem.appendChild(image);
+            listItem.appendChild(para);
+          } else {
+            para.textContent = `File name ${file.name}: Not a valid file type. Update your selection.`;
+            listItem.appendChild(para);
+          }
+
+          list.appendChild(listItem);
+        }
+      }
+    }
+
+// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+    const fileTypes = [
+        'image/apng',
+        'image/bmp',
+        'image/gif',
+        'image/jpeg',
+        'image/pjpeg',
+        'image/png',
+        'image/svg+xml',
+        'image/tiff',
+        'image/webp',
+        `image/x-icon`
+    ];
+
+    function validFileType(file) {
+      return fileTypes.includes(file.type);
+    }
+
+    function returnFileSize(number) {
+      if(number < 1024) {
+        return number + 'bytes';
+      } else if(number > 1024 && number < 1048576) {
+        return (number/1024).toFixed(1) + 'KB';
+      } else if(number > 1048576) {
+        return (number/1048576).toFixed(1) + 'MB';
+      }
+    }
+  </script>
+</body>
+</html>

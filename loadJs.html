@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
+    <title>Dynamic</title>
+    
+     <!-- the static loading of app.js file-->
+    <script src="app.js"></script>
+</head>
+<body>
+      
+    <div>
+        <div id="upper">
+            
+            <!-- The message will change on successful
+                 execution of View button-->
+            <h3 id="mssg">
+               We are here to learn how to load
+               CSS and JS file dynamically
+            </h3>
+  
+            <!-- The message() function is in script.js file -->
+            <button onclick="message()"> View Message </button>
+        </div>
+        <br>
+        
+
+    </div>
+
+   <button id='downloadAndLoadFiles'  onclick="downloadAndLoadFiles()"> download </button>
+   
+  <form>
+    <div>
+      <label for="image_uploads">选择</label>
+      <input type="file" id="image_uploads" name="image_uploads" multiple>
+    </div>
+    <div class="preview">
+    </div>
+  </form>
+ 
+	
+  <script>
+   // const input = document.querySelector('input');
+    
+    //input.style.opacity = 0;
+
+document.getElementById("image_uploads").addEventListener("change", chooseJs, false);
+
+    const jsUrls = ['./loadJs-script.js'];
+
+const cssUrls = ['./loadJs-styles.css'];
+
+function downloadAndLoadFiles(){
+    document.querySelector('#downloadAndLoadFiles').disabled = true;
+    loadFiles(jsUrls, '.js');
+    loadFiles(cssUrls, '.css');
+}
+
+  </script>
+  
+</body>
+</html>
