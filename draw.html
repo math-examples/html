@@ -53,7 +53,7 @@ Color : <select id="selColor">
 
 <div>
       <label class="button" for="image_uploads">选择背景图</label>
-      <input type="file" id="image_uploads" name="image_uploads" accept=".jpg, .jpeg, .png">
+      <input type="file" id="image_uploads" name="image_uploads">
 </div>
 
 <div> 
@@ -78,45 +78,30 @@ Color : <select id="selColor">
 <output id="output"></output>
 
 <script>
+    const input = document.querySelector('#image_uploads');
+    //input.style.opacity = 0;
+    input.addEventListener('change', updateImageToCanvas);
+    
+function file2img(f) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(f);
+    });
+}
+
+    async function updateImageToCanvas() {
         const input = document.querySelector('#image_uploads');
-
-    input.style.opacity = 0;
-
-    input.addEventListener('change', updateImageDisplay);
-
-    function updateImageDisplay() {
-      while(preview.firstChild) {
-        preview.removeChild(preview.firstChild);
-      }
-
-      const curFiles = input.files;
-      if(curFiles.length === 0) {
-        const para = document.createElement('p');
-        para.textContent = 'No files currently selected for upload';
-        preview.appendChild(para);
-      } else {
-        const list = document.createElement('ol');
-        preview.appendChild(list);
-
-        for(const file of curFiles) {
-          const listItem = document.createElement('li');
-          const para = document.createElement('p');
-
-          if(validFileType(file)) {
-            para.textContent = `File name ${file.name}, file size ${returnFileSize(file.size)}.`;
-            const image = document.createElement('img');
-            image.src = URL.createObjectURL(file);
-
-            listItem.appendChild(image);
-            listItem.appendChild(para);
-          } else {
-            para.textContent = `File name ${file.name}: Not a valid file type. Update your selection.`;
-            listItem.appendChild(para);
-          }
-
-          list.appendChild(listItem);
-        }
-      }
+        const img = await file2img(input.files[0]);
+        const c = document.querySelector('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        let ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
     }
 
 </script>
