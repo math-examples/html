@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <meta charset="UTF-8" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<meta http-equiv="Cache-Control" content="no-cache" />
+
     <title>Canvas experiment</title>
 
   <style>
@@ -48,6 +51,11 @@ Color : <select id="selColor">
     <option value="gray">gray</option>
 </select>
 
+<div>
+      <label class="button" for="image_uploads">选择背景图</label>
+      <input type="file" id="image_uploads" name="image_uploads" accept=".jpg, .jpeg, .png">
+</div>
+
 <div> 
 	<form id="gitHubForm" class="form">
 		<input id="usernameInput" class="input" type="number" min="1" max="100000" name="username" placeholder="画布宽"><br>
@@ -69,6 +77,49 @@ Color : <select id="selColor">
  <button class="button" id="toggler" onclick="myToggle()">转图片</button> 
 <output id="output"></output>
 
+<script>
+        const input = document.querySelector('#image_uploads');
+
+    input.style.opacity = 0;
+
+    input.addEventListener('change', updateImageDisplay);
+
+    function updateImageDisplay() {
+      while(preview.firstChild) {
+        preview.removeChild(preview.firstChild);
+      }
+
+      const curFiles = input.files;
+      if(curFiles.length === 0) {
+        const para = document.createElement('p');
+        para.textContent = 'No files currently selected for upload';
+        preview.appendChild(para);
+      } else {
+        const list = document.createElement('ol');
+        preview.appendChild(list);
+
+        for(const file of curFiles) {
+          const listItem = document.createElement('li');
+          const para = document.createElement('p');
+
+          if(validFileType(file)) {
+            para.textContent = `File name ${file.name}, file size ${returnFileSize(file.size)}.`;
+            const image = document.createElement('img');
+            image.src = URL.createObjectURL(file);
+
+            listItem.appendChild(image);
+            listItem.appendChild(para);
+          } else {
+            para.textContent = `File name ${file.name}: Not a valid file type. Update your selection.`;
+            listItem.appendChild(para);
+          }
+
+          list.appendChild(listItem);
+        }
+      }
+    }
+
+</script>
 <script>
 function toggle(elementId1, elementId2, s1, s2, cb1, cb2) {
       const btn = document.getElementById("toggler");
